@@ -21,13 +21,19 @@
   "devDependencies": {
     "@foxglove/eslint-plugin": "2.1.0",
     "@foxglove/extension": "2.27.1",
+    "@types/node": "^22.15.21",
     "@types/react": "18.3.22",
     "@types/react-dom": "18.3.7",
+    "autoprefixer": "^10.4.21",
     "create-foxglove-extension": "1.0.4",
+    "css-loader": "^7.1.2",
     "eslint": "9.27.0",
+    "postcss": "^8.5.3",
     "prettier": "3.5.3",
     "react": "18.3.1",
     "react-dom": "18.3.1",
+    "style-loader": "^4.0.0",
+    "tailwindcss": "^4.1.7",
     "typescript": "5.8.3"
   }
 }

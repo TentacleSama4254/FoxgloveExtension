@@ -1,6 +1,7 @@
 import { Immutable, MessageEvent, PanelExtensionContext, Topic } from "@foxglove/extension";
-import { ReactElement, useEffect, useLayoutEffect, useState } from "react";
+import React, { ReactElement, useEffect, useLayoutEffect, useState } from "react";
 import { createRoot } from "react-dom/client";
+import "./styles.css";
 
 function ExamplePanel({ context }: { context: PanelExtensionContext }): ReactElement {
   const [topics, setTopics] = useState<undefined | Immutable<Topic[]>>();
@@ -54,24 +55,37 @@ function ExamplePanel({ context }: { context: PanelExtensionContext }): ReactEle
   }, [renderDone]);
 
   return (
-    <div style={{ padding: "1rem" }}>
-      <h2>Welcome to your new extension panel!</h2>
-      <p>
-        Check the{" "}
-        <a href="https://foxglove.dev/docs/studio/extensions/getting-started">documentation</a> for
-        more details on building extension panels for Foxglove Studio.
-      </p>
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", rowGap: "0.2rem" }}>
-        <b style={{ borderBottom: "1px solid" }}>Topic</b>
-        <b style={{ borderBottom: "1px solid" }}>Schema name</b>
-        {(topics ?? []).map((topic) => (
-          <>
-            <div key={topic.name}>{topic.name}</div>
-            <div key={topic.schemaName}>{topic.schemaName}</div>
-          </>
-        ))}
+    <div className="panel-background min-h-screen p-4">
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
+        <h2 className="text-2xl font-bold mb-4 panel-text">Welcome to your new extension panel!</h2>
+        <p className="mb-6 panel-text">
+          Check the{" "}
+          <a 
+            href="https://foxglove.dev/docs/studio/extensions/getting-started"
+            className="text-blue-500 hover:text-blue-600 dark:text-blue-400 dark:hover:text-blue-300 underline"
+          >
+            documentation
+          </a>{" "}
+          for more details on building extension panels for Foxglove Studio.
+        </p>
+        
+        <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-4">
+          <div className="grid grid-cols-2 gap-4 mb-4">
+            <div className="font-semibold text-gray-700 dark:text-gray-300 border-b border-gray-200 dark:border-gray-700 pb-2">Topic</div>
+            <div className="font-semibold text-gray-700 dark:text-gray-300 border-b border-gray-200 dark:border-gray-700 pb-2">Schema name</div>
+            {(topics ?? []).map((topic) => (
+              <React.Fragment key={topic.name}>
+                <div className="text-gray-600 dark:text-gray-400">{topic.name}</div>
+                <div className="text-gray-600 dark:text-gray-400">{topic.schemaName}</div>
+              </React.Fragment>
+            ))}
+          </div>
+          
+          <div className="mt-4 text-sm text-gray-500 dark:text-gray-400">
+            Messages in current frame: {messages?.length ?? 0}
+          </div>
+        </div>
       </div>
-      <div>{messages?.length}</div>
     </div>
   );
 }
