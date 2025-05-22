@@ -308,8 +308,6 @@ function MinimalDashboardPanel({ context }: { context: PanelExtensionContext }):
 
   return (
     <div style={containerStyle}>
-      <h1 style={headerStyle}>Minimal Flight Dashboard</h1>
-
       <div style={mainContainerStyle}>
         {/* Main display area that adapts to screen orientation */}
         <div style={gridStyle}>

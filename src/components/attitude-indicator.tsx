@@ -63,15 +63,15 @@ export function AttitudeIndicator({ roll, pitch, size = 200, darkMode = true }: 
     // Draw sky and ground - make them much larger to avoid seeing edges during rotation
     const extendedSize = radius * 3 // Make the rectangles much larger than the visible area
 
-    // Sky (blue)
+    // Sky (blue) - should be below the horizon
     ctx.beginPath()
-    ctx.rect(-extendedSize, -extendedSize - pitchOffset, extendedSize * 2, extendedSize)
+    ctx.rect(-extendedSize, -pitchOffset, extendedSize * 2, extendedSize)
     ctx.fillStyle = "#3498db" // Sky blue
     ctx.fill()
 
-    // Ground (brown)
+    // Ground (brown) - should be above the horizon
     ctx.beginPath()
-    ctx.rect(-extendedSize, -pitchOffset, extendedSize * 2, extendedSize)
+    ctx.rect(-extendedSize, -extendedSize - pitchOffset, extendedSize * 2, extendedSize)
     ctx.fillStyle = "#8B4513" // Brown for ground
     ctx.fill()
 

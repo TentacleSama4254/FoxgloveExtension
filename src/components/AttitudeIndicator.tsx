@@ -55,14 +55,13 @@ export function AttitudeIndicator({ roll, pitch, size = 200, darkMode = true }: 
     
     ctx.translate(centerX, centerY)
     ctx.rotate((roll * Math.PI) / 180)
-    
-    // Draw sky
+      // Draw sky (on bottom half)
     ctx.fillStyle = darkMode ? "#0a4b9c" : "#87CEEB"
-    ctx.fillRect(-radius, -radius - pitchOffset, radius * 2, radius)
-    
-    // Draw ground
-    ctx.fillStyle = darkMode ? "#5e3a11" : "#8B4513"
     ctx.fillRect(-radius, -pitchOffset, radius * 2, radius)
+    
+    // Draw ground (on top half)
+    ctx.fillStyle = darkMode ? "#5e3a11" : "#8B4513"
+    ctx.fillRect(-radius, -radius - pitchOffset, radius * 2, radius)
     
     // Draw horizon line
     ctx.beginPath()
