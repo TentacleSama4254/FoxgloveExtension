@@ -192,134 +192,84 @@ function DroneDashboardPanel({ context }: { context: PanelExtensionContext }): R
   // Call the done callback after render
   useEffect(() => {
     renderDone?.();
-  }, [renderDone]);  // Responsive styles with useState for window dimensions
-  const [windowWidth, setWindowWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1024);
-  
+  }, [renderDone]); // Responsive styles with useState for window dimensions
+  const [windowWidth, setWindowWidth] = useState(
+    typeof window !== "undefined" ? window.innerWidth : 1024,
+  );
+
   // Add window resize listener
   useEffect(() => {
     const handleResize = () => setWindowWidth(window.innerWidth);
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
   }, []);
-  
-  const containerStyle: React.CSSProperties = {
-    minHeight: '100vh',
-    backgroundColor: '#111827', // bg-gray-900
-    color: 'white',
-    padding: windowWidth >= 640 ? '1rem' : '0.5rem', // sm:p-4 : p-2
+  // No need for inline styles as we're using CSS classes now
+  // Calculate component sizes based on available space
+  const calculateComponentSize = () => {
+    // Base size for components based on screen size
+    let baseSize: number;
+
+    if (windowWidth >= 1024) {
+      // Large screens - can fit 3 components horizontally
+      baseSize = Math.min(windowWidth / 3.5, 200);
+    } else if (windowWidth >= 640) {
+      // Medium screens - can fit 2 components horizontally
+      baseSize = Math.min(windowWidth / 2.5, 200);
+    } else {
+      // Small screens - single column
+      baseSize = Math.min(windowWidth * 0.7, 200);
+    }
+
+    return Math.max(120, Math.min(baseSize, 200)); // Clamp between 120px and 200px
   };
 
-  const headerStyle: React.CSSProperties = {
-    fontSize: windowWidth >= 640 ? '1.5rem' : '1.25rem', // sm:text-2xl : text-xl
-    fontWeight: 'bold',
-    marginBottom: windowWidth >= 640 ? '1.5rem' : '0.75rem', // sm:mb-6 : mb-3
-    textAlign: 'center',
-  };
-
-  const mainContainerStyle: React.CSSProperties = {
-    width: '100%',
-    maxWidth: '72rem', // max-w-6xl
-    margin: '0 auto', // mx-auto
-  };
-
-  const gridStyle: React.CSSProperties = {
-    display: 'grid',
-    gridTemplateColumns: windowWidth >= 1024 ? 'repeat(3, 1fr)' : 
-                         windowWidth >= 640 ? 'repeat(2, 1fr)' : '1fr',
-    gap: windowWidth >= 1024 ? '1.5rem' : 
-         windowWidth >= 640 ? '1rem' : '0.75rem',
-  };
-
-  const cardStyle: React.CSSProperties = {
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    backgroundColor: '#1f2937', // bg-gray-800
-    borderRadius: '0.5rem', // rounded-lg
-    padding: windowWidth >= 640 ? '1rem' : '0.75rem', // sm:p-4 : p-3
-  };
-
-  const imuCardStyle: React.CSSProperties = {
-    ...cardStyle,
-    gridColumn: windowWidth >= 640 && windowWidth < 1024 ? 'span 2' : 'auto', // sm:col-span-2 lg:col-span-1
-  };
-
-  const cardHeaderStyle: React.CSSProperties = {
-    fontSize: windowWidth >= 640 ? '1.125rem' : '1rem', // sm:text-lg : text-base
-    fontWeight: '600', // font-semibold
-    marginBottom: windowWidth >= 640 ? '0.5rem' : '0.25rem', // sm:mb-2 : mb-1
-  };
-
-  const valueContainerStyle: React.CSSProperties = {
-    marginTop: windowWidth >= 640 ? '0.5rem' : '0.25rem', // sm:mt-2 : mt-1
-    textAlign: 'center',
-    fontSize: '0.875rem', // text-sm
-  };
-
-  const valueStyle: React.CSSProperties = {
-    fontSize: windowWidth >= 640 ? '1.25rem' : '1.125rem', // sm:text-xl : text-lg
-    fontFamily: 'monospace', // font-mono
-  };
-
-  const gpsContainerStyle: React.CSSProperties = {
-    marginTop: windowWidth >= 640 ? '1.5rem' : '0.75rem', // sm:mt-6 : mt-3
-    backgroundColor: '#1f2937', // bg-gray-800
-    borderRadius: '0.5rem', // rounded-lg
-    padding: windowWidth >= 640 ? '1rem' : '0.75rem', // sm:p-4 : p-3
-    textAlign: 'center',
-  };
-
-  const gpsGridStyle: React.CSSProperties = {
-    display: 'grid',
-    gridTemplateColumns: windowWidth >= 640 ? 'repeat(2, 1fr)' : '1fr',
-    gap: windowWidth >= 640 ? '1rem' : '0.5rem', // sm:gap-4 : gap-2
-  };
-
-  const gpsLabelStyle: React.CSSProperties = {
-    color: '#9ca3af', // text-gray-400
-  };
-
-  const gpsValueStyle: React.CSSProperties = {
-    fontFamily: 'monospace', // font-mono
-  };
-
+  // Dynamically sized components
+  const componentSize = calculateComponentSize();
   return (
-    <div style={containerStyle}>
-      <h1 style={headerStyle}>
-        Drone Flight Dashboard
-      </h1>
+    <div className="dashboard-container">
+      <h1 className="dashboard-header">Drone Flight Dashboard</h1>
 
-      <div style={mainContainerStyle}>
+      <div className="main-container">
         {/* Main display area that adapts to screen orientation */}
-        <div style={gridStyle}>
-          <div style={cardStyle}>
-            <h2 style={cardHeaderStyle}>Horizon</h2>
-            <AttitudeIndicator roll={droneData.roll} pitch={droneData.pitch} darkMode={darkMode} />
-            <div style={valueContainerStyle}>
-              <span style={valueStyle}>
-                {droneData.altitude.toFixed(1)} m
-              </span>
+        <div className="dashboard-grid">
+          <div className="dashboard-card">
+            <h2 className="card-header">Horizon</h2>
+            <div className="dashboard-component">
+              <AttitudeIndicator
+                roll={droneData.roll}
+                pitch={droneData.pitch}
+                darkMode={darkMode}
+                size={componentSize}
+              />
+            </div>
+            <div className="value-container">
+              <span className="value-text">{droneData.altitude.toFixed(1)} m</span>
             </div>
           </div>
 
-          <div style={cardStyle}>
-            <h2 style={cardHeaderStyle}>Compass</h2>
-            <Compass heading={droneData.heading} darkMode={darkMode} />
-            <div style={valueContainerStyle}>
-              <span style={valueStyle}>{droneData.heading.toFixed(1)}°</span>
+          <div className="dashboard-card">
+            <h2 className="card-header">Compass</h2>
+            <div className="dashboard-component">
+              <Compass heading={droneData.heading} darkMode={darkMode} size={componentSize} />
+            </div>
+            <div className="value-container">
+              <span className="value-text">{droneData.heading.toFixed(1)}°</span>
             </div>
           </div>
 
-          <div style={imuCardStyle}>
-            <h2 style={cardHeaderStyle}>IMU Data</h2>
-            <IMUDisplay
-              acceleration={droneData.imuAcceleration}
-              gyro={droneData.imuGyro}
-              mag={droneData.imuMag}
-              darkMode={darkMode}
-            />
-            <div style={valueContainerStyle}>
-              <span style={{fontFamily: 'monospace'}}>
+          <div className="dashboard-card imu-card">
+            <h2 className="card-header">IMU Data</h2>
+            <div className="dashboard-component">
+              <IMUDisplay
+                acceleration={droneData.imuAcceleration}
+                gyro={droneData.imuGyro}
+                mag={droneData.imuMag}
+                darkMode={darkMode}
+                size={componentSize}
+              />
+            </div>
+            <div className="value-container">
+              <span className="mono-text">
                 Accel:{" "}
                 {Math.sqrt(
                   Math.pow(droneData.imuAcceleration.x, 2) +
@@ -333,15 +283,15 @@ function DroneDashboardPanel({ context }: { context: PanelExtensionContext }): R
         </div>
 
         {/* GPS coordinates */}
-        <div style={gpsContainerStyle}>
-          <div style={gpsGridStyle}>
+        <div className="gps-container">
+          <div className="gps-grid">
             <div>
-              <span style={gpsLabelStyle}>Latitude:</span>{" "}
-              <span style={gpsValueStyle}>{droneData.latitude?.toFixed(6) || "N/A"}</span>
+              <span className="gps-label">Latitude:</span>{" "}
+              <span className="mono-text">{droneData.latitude?.toFixed(6) || "N/A"}</span>
             </div>
             <div>
-              <span style={gpsLabelStyle}>Longitude:</span>{" "}
-              <span style={gpsValueStyle}>{droneData.longitude?.toFixed(6) || "N/A"}</span>
+              <span className="gps-label">Longitude:</span>{" "}
+              <span className="mono-text">{droneData.longitude?.toFixed(6) || "N/A"}</span>
             </div>
           </div>
         </div>

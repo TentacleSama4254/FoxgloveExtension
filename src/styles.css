@@ -12,3 +12,151 @@
     @apply text-gray-900 dark:text-gray-100;
   }
 }
+
+/* Dashboard styles */
+.dashboard-container {
+  min-height: 100vh;
+  background-color: #111827;
+  color: white;
+  padding: 0.5rem;
+}
+
+.dashboard-header {
+  font-size: 1.25rem;
+  font-weight: bold;
+  margin-bottom: 0.75rem;
+  text-align: center;
+}
+
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.75rem;
+  width: 100%;
+  max-width: 72rem;
+  margin: 0 auto;
+}
+
+.dashboard-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-color: #1f2937;
+  border-radius: 0.5rem;
+  padding: 0.75rem;
+}
+
+.imu-card {
+  grid-column: span 1;
+}
+
+.card-header {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+}
+
+.value-container {
+  margin-top: 0.25rem;
+  text-align: center;
+  font-size: 0.875rem;
+}
+
+.mono-text {
+  font-family: monospace;
+}
+
+.value-text {
+  font-size: 1.125rem;
+  font-family: monospace;
+}
+
+.gps-container {
+  margin-top: 0.75rem;
+  background-color: #1f2937;
+  border-radius: 0.5rem;
+  padding: 0.75rem;
+  text-align: center;
+}
+
+.gps-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.5rem;
+}
+
+.gps-label {
+  color: #9ca3af;
+}
+
+/* Responsive styles */
+@media (min-width: 640px) {
+  .dashboard-container {
+    padding: 1rem;
+  }
+
+  .dashboard-header {
+    font-size: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .dashboard-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+  }
+
+  .imu-card {
+    grid-column: span 2;
+  }
+
+  .dashboard-card {
+    padding: 1rem;
+  }
+
+  .card-header {
+    font-size: 1.125rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .value-container {
+    margin-top: 0.5rem;
+  }
+
+  .value-text {
+    font-size: 1.25rem;
+  }
+
+  .gps-container {
+    margin-top: 1.5rem;
+    padding: 1rem;
+  }
+
+  .gps-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .dashboard-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+  }
+
+  .imu-card {
+    grid-column: span 1;
+  }
+}
+
+/* Component sizing */
+.dashboard-component {
+  width: 100%;
+  max-width: 200px;
+  margin: 0 auto;
+}
+
+@media (max-width: 639px) {
+  .dashboard-component {
+    max-width: 150px;
+  }
+}

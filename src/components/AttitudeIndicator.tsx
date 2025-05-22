@@ -54,14 +54,13 @@ export function AttitudeIndicator({ roll, pitch, size = 200, darkMode = true }: 
     const pitchOffset = (pitch / 90) * radius
     
     ctx.translate(centerX, centerY)
-    ctx.rotate((roll * Math.PI) / 180)
-      // Draw sky (on bottom half)
-    ctx.fillStyle = darkMode ? "#0a4b9c" : "#87CEEB"
-    ctx.fillRect(-radius, -pitchOffset, radius * 2, radius)
-    
-    // Draw ground (on top half)
-    ctx.fillStyle = darkMode ? "#5e3a11" : "#8B4513"
-    ctx.fillRect(-radius, -radius - pitchOffset, radius * 2, radius)
+    ctx.rotate((roll * Math.PI) / 180); // Draw sky (on top half)
+    ctx.fillStyle = darkMode ? "#0a4b9c" : "#87CEEB";
+    ctx.fillRect(-radius, -radius - pitchOffset, radius * 2, radius);
+
+    // Draw ground (on bottom half)
+    ctx.fillStyle = darkMode ? "#5e3a11" : "#8B4513";
+    ctx.fillRect(-radius, -pitchOffset, radius * 2, radius);
     
     // Draw horizon line
     ctx.beginPath()
