@@ -1,5 +1,5 @@
 import { ExtensionContext } from "@foxglove/extension";
-import { initExamplePanel } from "./ExamplePanel";
+// import { initExamplePanel } from "./ExamplePanel";
 import { initDroneDashboardPanel } from "./DroneDashboardPanel";
 import { initMinimalDashboardPanel } from "./MinimalDashboardPanel";
 
@@ -109,7 +109,7 @@ function convertToSceneUpdate(message: {
 }
 
 export function activate(extensionContext: ExtensionContext): void {
-  extensionContext.registerPanel({ name: "example-panel", initPanel: initExamplePanel });
+  // extensionContext.registerPanel({ name: "example-panel", initPanel: initExamplePanel });
   extensionContext.registerPanel({ name: "drone-dashboard", initPanel: initDroneDashboardPanel });
   extensionContext.registerPanel({ name: "minimal-dashboard", initPanel: initMinimalDashboardPanel });
 

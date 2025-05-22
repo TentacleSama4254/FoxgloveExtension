@@ -1,27 +1,26 @@
 {
+  "extends": "create-foxglove-extension/tsconfig/tsconfig.json",
+
+  "include": ["./src/**/*"],
   "compilerOptions": {
-    "lib": ["dom", "dom.iterable", "esnext"],
-    "allowJs": true,
-    "target": "ES6",
-    "skipLibCheck": true,
-    "strict": true,
-    "noEmit": true,
-    "esModuleInterop": true,
-    "module": "esnext",
-    "moduleResolution": "bundler",
-    "resolveJsonModule": true,
-    "isolatedModules": true,
-    "jsx": "preserve",
-    "incremental": true,
-    "plugins": [
-      {
-        "name": "next"
-      }
-    ],
-    "paths": {
-      "@/*": ["./*"]
-    }
-  },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
-  "exclude": ["node_modules"]
+    "rootDir": "./src",
+    "outDir": "./dist",
+    "lib": ["dom"],
+
+    // These two settings prevent typescript from emitting .d.ts files we don't need in
+    // the compiled extension.
+    "composite": false,
+    "declaration": false,
+
+    // Additional TypeScript error reporting checks are enabled by default to improve code quality.
+    // Enable/disable these checks as necessary to suit your coding preferences or work with
+    // existing code
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitAny": true,
+    "noImplicitReturns": true,
+    "noUncheckedIndexedAccess": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "forceConsistentCasingInFileNames": true
+  }
 }

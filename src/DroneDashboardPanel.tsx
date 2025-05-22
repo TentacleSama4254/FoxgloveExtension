@@ -1,10 +1,10 @@
-import { Immutable, MessageEvent, PanelExtensionContext, Topic } from "@foxglove/extension";
-import React, { ReactElement, useEffect, useLayoutEffect, useState, useRef } from "react";
+import { PanelExtensionContext } from "@foxglove/extension";
+import { ReactElement, useEffect, useLayoutEffect, useState } from "react";
 import { createRoot } from "react-dom/client";
 
-import { Compass } from "../components/compass";
-import { IMUDisplay } from "../components/imu-display";
-import { AttitudeIndicator } from "../components/attitude-indicator";
+import { Compass } from "./components/Compass";
+import { IMUDisplay } from "./components/IMUDisplay";
+import { AttitudeIndicator } from "./components/AttitudeIndicator";
 
 // GPS data structure based on NavSatFix message
 interface GpsData {
@@ -80,26 +80,31 @@ const initialData: DroneData = {
   imuMag: { x: 0, y: 0, z: 0 },
 };
 
-function quaternionToEuler(quat: { x: number; y: number; z: number; w: number }): { roll: number; pitch: number; yaw: number } {
+function quaternionToEuler(quat: { x: number; y: number; z: number; w: number }): {
+  roll: number;
+  pitch: number;
+  yaw: number;
+} {
   const { x, y, z, w } = quat;
-  
+
   // Convert quaternion to Euler angles (roll, pitch, yaw)
   // Roll (x-axis rotation)
   const sinr_cosp = 2 * (w * x + y * z);
   const cosr_cosp = 1 - 2 * (x * x + y * y);
   const roll = Math.atan2(sinr_cosp, cosr_cosp) * (180 / Math.PI);
-  
+
   // Pitch (y-axis rotation)
   const sinp = 2 * (w * y - z * x);
-  const pitch = Math.abs(sinp) >= 1 
-    ? Math.sign(sinp) * 90 // Use 90 degrees if out of range
-    : Math.asin(sinp) * (180 / Math.PI);
-  
+  const pitch =
+    Math.abs(sinp) >= 1
+      ? Math.sign(sinp) * 90 // Use 90 degrees if out of range
+      : Math.asin(sinp) * (180 / Math.PI);
+
   // Yaw (z-axis rotation)
   const siny_cosp = 2 * (w * z + x * y);
   const cosy_cosp = 1 - 2 * (y * y + z * z);
   const yaw = Math.atan2(siny_cosp, cosy_cosp) * (180 / Math.PI);
-  
+
   return { roll, pitch, yaw };
 }
 
@@ -107,26 +112,29 @@ function DroneDashboardPanel({ context }: { context: PanelExtensionContext }): R
   const [droneData, setDroneData] = useState<DroneData>(initialData);
   const [darkMode] = useState(true);
   const [renderDone, setRenderDone] = useState<(() => void) | undefined>();
-  
+
   // Setup render handler and topic subscriptions
   useLayoutEffect(() => {
     context.onRender = (renderState, done) => {
       setRenderDone(() => done);
-      
+
       // Process messages in the current frame
       if (renderState.currentFrame) {
         const newDroneData = { ...droneData };
         let dataUpdated = false;
-        
+
         // Process GPS data from NavSatFix messages
         const gpsMessages = renderState.currentFrame.filter(
-          msg => msg.topic === "/fix" || msg.topic.includes("NavSatFix") || msg.topic.includes("/sensor_msgs")
+          (msg) =>
+            msg.topic === "/fix" ||
+            msg.topic.includes("NavSatFix") ||
+            msg.topic.includes("/sensor_msgs"),
         );
-        
+
         if (gpsMessages.length > 0) {
           const gpsMessage = gpsMessages[gpsMessages.length - 1];
-          const gpsData = gpsMessage.message as unknown as GpsData;
-          
+          const gpsData = gpsMessage?.message as unknown as GpsData;
+
           if (gpsData) {
             newDroneData.latitude = gpsData.latitude;
             newDroneData.longitude = gpsData.longitude;
@@ -134,57 +142,57 @@ function DroneDashboardPanel({ context }: { context: PanelExtensionContext }): R
             dataUpdated = true;
           }
         }
-        
+
         // Process IMU data from IMU messages
         const imuMessages = renderState.currentFrame.filter(
-          msg => msg.topic.includes("/imu") || msg.topic.includes("data_stamped")
+          (msg) => msg.topic.includes("/imu") || msg.topic.includes("data_stamped"),
         );
-        
+
         if (imuMessages.length > 0) {
           const imuMessage = imuMessages[imuMessages.length - 1];
-          const imuData = imuMessage.message as unknown as ImuData;
-          
+          const imuData = imuMessage?.message as unknown as ImuData;
+
           if (imuData) {
             // Convert quaternion to Euler angles
             const { roll, pitch, yaw } = quaternionToEuler(imuData.orientation);
-            
+
             newDroneData.roll = roll;
             newDroneData.pitch = pitch;
             newDroneData.heading = (yaw + 360) % 360; // Convert to 0-360 range
-            
+
             // Update acceleration and angular velocity
             newDroneData.imuAcceleration = imuData.linear_acceleration;
             newDroneData.imuGyro = imuData.angular_velocity;
-            
+
             dataUpdated = true;
           }
         }
-        
+
         // Update state only if data changed
         if (dataUpdated) {
           setDroneData(newDroneData);
         }
       }
     };
-    
+
     // Watch for topic updates and messages
     context.watch("topics");
     context.watch("currentFrame");
-    
+
     // Subscribe to relevant topics - adjust these based on your ROS bag's actual topics
     context.subscribe([
       { topic: "/fix" },
       { topic: "/imu/data_stamped" },
       { topic: "/sensor_msgs/NavSatFix" },
-      { topic: "/nav_msgs/Odometry" }
+      { topic: "/nav_msgs/Odometry" },
     ]);
   }, [context, droneData]);
-  
+
   // Call the done callback after render
   useEffect(() => {
     renderDone?.();
   }, [renderDone]);
-  
+
   return (
     <div className="min-h-screen bg-gray-900 text-white p-4">
       <h1 className="text-2xl font-bold mb-6 text-center">Drone Flight Dashboard</h1>
@@ -240,10 +248,9 @@ function DroneDashboardPanel({ context }: { context: PanelExtensionContext }): R
             <div>
               <span className="text-gray-400">Longitude:</span>{" "}
               <span className="font-mono">{droneData.longitude?.toFixed(6) || "N/A"}</span>
-            </div>          </div>
+            </div>{" "}
+          </div>
         </div>
-
- 
       </div>
     </div>
   );

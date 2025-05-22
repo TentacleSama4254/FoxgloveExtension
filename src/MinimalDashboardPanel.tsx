@@ -1,10 +1,10 @@
-import { Immutable, MessageEvent, PanelExtensionContext, Topic } from "@foxglove/extension";
-import React, { ReactElement, useEffect, useLayoutEffect, useState } from "react";
+import { PanelExtensionContext } from "@foxglove/extension";
+import { ReactElement, useEffect, useLayoutEffect, useState } from "react";
 import { createRoot } from "react-dom/client";
 
-import { Compass } from "../components/compass";
-import { IMUDisplay } from "../components/imu-display";
-import { AttitudeIndicator } from "../components/attitude-indicator";
+import { Compass } from "./components/compass2";
+import { IMUDisplay } from "./components/imu-display";
+import { AttitudeIndicator } from "./components/attitude-indicator";
 import "./styles.css";
 
 // GPS data structure based on NavSatFix message
@@ -48,7 +48,8 @@ interface ImuData {
   header?: {
     seq?: number;
     stamp?: { sec: number; nsec: number };
-    frame_id?: string;  };
+    frame_id?: string;
+  };
 }
 
 // Odometry data structure
@@ -112,26 +113,31 @@ const initialData: MinimalDroneData = {
 };
 
 // Helper function to convert quaternion to Euler angles
-function quaternionToEuler(quat: { x: number; y: number; z: number; w: number }): { roll: number; pitch: number; yaw: number } {
+function quaternionToEuler(quat: { x: number; y: number; z: number; w: number }): {
+  roll: number;
+  pitch: number;
+  yaw: number;
+} {
   const { x, y, z, w } = quat;
-  
+
   // Convert quaternion to Euler angles (roll, pitch, yaw)
   // Roll (x-axis rotation)
   const sinr_cosp = 2 * (w * x + y * z);
   const cosr_cosp = 1 - 2 * (x * x + y * y);
   const roll = Math.atan2(sinr_cosp, cosr_cosp) * (180 / Math.PI);
-  
+
   // Pitch (y-axis rotation)
   const sinp = 2 * (w * y - z * x);
-  const pitch = Math.abs(sinp) >= 1 
-    ? Math.sign(sinp) * 90 // Use 90 degrees if out of range
-    : Math.asin(sinp) * (180 / Math.PI);
-  
+  const pitch =
+    Math.abs(sinp) >= 1
+      ? Math.sign(sinp) * 90 // Use 90 degrees if out of range
+      : Math.asin(sinp) * (180 / Math.PI);
+
   // Yaw (z-axis rotation)
   const siny_cosp = 2 * (w * z + x * y);
   const cosy_cosp = 1 - 2 * (y * y + z * z);
   const yaw = Math.atan2(siny_cosp, cosy_cosp) * (180 / Math.PI);
-  
+
   return { roll, pitch, yaw };
 }
 
@@ -144,20 +150,18 @@ function MinimalDashboardPanel({ context }: { context: PanelExtensionContext }):
   useLayoutEffect(() => {
     context.onRender = (renderState, done) => {
       setRenderDone(() => done);
-      
+
       // Process messages in the current frame
       if (renderState.currentFrame) {
         const newDroneData = { ...droneData };
         let dataUpdated = false;
-          // Process GPS data from NavSatFix messages
-        const gpsMessages = renderState.currentFrame.filter(
-          msg => msg.topic === "/fix"
-        );
-        
+        // Process GPS data from NavSatFix messages
+        const gpsMessages = renderState.currentFrame.filter((msg) => msg.topic === "/fix");
+
         if (gpsMessages.length > 0) {
           const gpsMessage = gpsMessages[gpsMessages.length - 1];
-          const gpsData = gpsMessage.message as unknown as GpsData;
-          
+          const gpsData = gpsMessage?.message as unknown as GpsData;
+
           if (gpsData) {
             newDroneData.latitude = gpsData.latitude;
             newDroneData.longitude = gpsData.longitude;
@@ -165,72 +169,71 @@ function MinimalDashboardPanel({ context }: { context: PanelExtensionContext }):
             dataUpdated = true;
           }
         }
-          // Process IMU data from IMU messages
+        // Process IMU data from IMU messages
         const imuMessages = renderState.currentFrame.filter(
-          msg => msg.topic === "/imu/data_stamped" || 
-                 msg.topic.includes("IMUwithTimeRef")
+          (msg) => msg.topic === "/imu/data_stamped" || msg.topic.includes("IMUwithTimeRef"),
         );
-        
+
         if (imuMessages.length > 0) {
           const imuMessage = imuMessages[imuMessages.length - 1];
-          const imuData = imuMessage.message as unknown as ImuData;
-          
+          const imuData = imuMessage?.message as unknown as ImuData;
+
           if (imuData) {
             // Convert quaternion to Euler angles
             const { roll, pitch, yaw } = quaternionToEuler(imuData.orientation);
-            
+
             newDroneData.roll = roll;
             newDroneData.pitch = pitch;
             newDroneData.heading = (yaw + 360) % 360; // Convert to 0-360 range
-            
+
             // Update acceleration and angular velocity
             newDroneData.imuAcceleration = imuData.linear_acceleration;
             newDroneData.imuGyro = imuData.angular_velocity;
-            
+
             dataUpdated = true;
           }
         }
-          // Process Odometry data
-        const odometryMessages = renderState.currentFrame.filter(
-          msg => msg.topic.includes("/Odometry")
+        // Process Odometry data
+        const odometryMessages = renderState.currentFrame.filter((msg) =>
+          msg.topic.includes("/Odometry"),
         );
-        
+
         if (odometryMessages.length > 0) {
           const odometryMessage = odometryMessages[odometryMessages.length - 1];
-          const odometryData = odometryMessage.message as unknown as OdometryData;
-          
+          const odometryData = odometryMessage?.message as unknown as OdometryData;
+
           if (odometryData?.pose?.pose) {
             // Use odometry data as a fallback for missing IMU data
             if (odometryData.pose.pose.orientation && !dataUpdated) {
               const { roll, pitch, yaw } = quaternionToEuler(odometryData.pose.pose.orientation);
-              
+
               newDroneData.roll = roll;
               newDroneData.pitch = pitch;
               newDroneData.heading = (yaw + 360) % 360;
-              
+
               dataUpdated = true;
             }
           }
         }
-        
+
         // Update state only if data changed
         if (dataUpdated) {
           setDroneData(newDroneData);
         }
       }
     };
-    
+
     // Watch for topic updates and messages
     context.watch("topics");
     context.watch("currentFrame");
-      // Subscribe to relevant topics as shown in the screenshots
+    // Subscribe to relevant topics as shown in the screenshots
     context.subscribe([
-      { topic: "/fix" },                // GPS data
-      { topic: "/imu/data_stamped" },   // IMU data
-      { topic: "/Odometry" }            // Odometry data
+      { topic: "/fix" }, // GPS data
+      { topic: "/imu/data_stamped" }, // IMU data
+      { topic: "/Odometry" }, // Odometry data
     ]);
   }, [context, droneData]);
-  
+
   // Call the done callback after render
   useEffect(() => {
     renderDone?.();
