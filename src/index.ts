@@ -1,5 +1,7 @@
 import { ExtensionContext } from "@foxglove/extension";
 import { initExamplePanel } from "./ExamplePanel";
+import { initDroneDashboardPanel } from "./DroneDashboardPanel";
+import { initMinimalDashboardPanel } from "./MinimalDashboardPanel";
 
 /**
  * Updates visualization marker mesh resource URL
@@ -108,6 +110,8 @@ function convertToSceneUpdate(message: {
 
 export function activate(extensionContext: ExtensionContext): void {
   extensionContext.registerPanel({ name: "example-panel", initPanel: initExamplePanel });
+  extensionContext.registerPanel({ name: "drone-dashboard", initPanel: initDroneDashboardPanel });
+  extensionContext.registerPanel({ name: "minimal-dashboard", initPanel: initMinimalDashboardPanel });
 
   // Register a topic alias that converts directly to SceneUpdate
   extensionContext.registerTopicAliases((_args) => [
